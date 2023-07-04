@@ -1,0 +1,234 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Program Trends</title>
+    <link rel="stylesheet" href="{%static 'styles.css'%}">
+</head>
+
+<body>
+    <div class="header">
+        <img class="logo" src="{%static 'logo.png'%}">
+        <p class="header-text">JoSAA Data Analysis Portal</p>
+        <nav>
+            <ul class="nav_links">
+                <li><a href="{%url 'FilterbyInstitute'%}">Filter By Institute</a></li>
+                <li><a href="{%url 'FilterbyProgram'%}">Filter By Program</a></li>
+                <li><a href="{%url 'InstituteTrends'%}">Institute Trends</a></li>
+                <li><a href="{%url 'ProgramTrends'%}">Program Trends</a></li>
+                
+                <li><a href="{%url 'RoundTrends'%}">Round Trends</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="container">
+        <h2>Program Trends</h2>
+        <p class="container-text">Comparing the cut-offs of various institutes offering a particular course over last
+            few years in the JoSAA seat allotment process helps us understand the demand for a particular institute
+            offering the program during counselling.</p>
+        <div class="main-content">
+
+            <h3>Field</h3>
+            <div class="select-box">
+                <div class="options-container">
+                    {%for program in programs%}
+                    <div class="option">
+                        <input value="{{program}}" type="radio" class="radio" id="{{program}}" name="{{program}}" />
+                        <label for="{{program}}">{{program}}</label>
+                    </div>
+                    {%endfor%}
+                </div>
+
+                <div class="selected" id="program">
+                    Select Field
+                </div>
+
+                <div class="search-box">
+                    <input type="text" placeholder="Start Typing..." />
+                </div>
+            </div>
+
+            <h3>Seat Type</h3>
+            <div class="select-box">
+                <div class="options-container">
+                    <div class="option">
+                        <input type="radio" class="radio" id="OPEN" name="category" />
+                        <label for="OPEN">OPEN</label>
+                    </div>
+
+                    <div class="option">
+                        <input type="radio" class="radio" id="OBC NCL" name="category" />
+                        <label for="OBC NCL">OBC NCL</label>
+                    </div>
+
+                    <div class="option">
+                        <input type="radio" class="radio" id="SC" name="category" />
+                        <label for="SC">SC</label>
+                    </div>
+
+                    <div class="option">
+                        <input type="radio" class="radio" id="ST" name="category" />
+                        <label for="ST">ST</label>
+                    </div>
+                </div>
+
+                <div class="selected" id="seattype">
+                    Select Seat Type
+                </div>
+
+                <div class="search-box">
+                    <input type="text" placeholder="Start Typing..." />
+                </div>
+            </div>
+
+            <h3>Gender</h3>
+            <div class="select-box">
+                <div class="options-container">
+                    <div class="option">
+                        <input type="radio" class="radio" id="Gender Neutral" name="category" />
+                        <label for="Gender Neutral">Gender-Neutral</label>
+                    </div>
+
+                    <div class="option">
+                        <input type="radio" class="radio" id="Female Only" name="category" />
+                        <label for="Female-only (including Supernumerary)">Female-only (including Supernumerary)</label>
+                    </div>
+                </div>
+
+                <div class="selected" id="gender">
+                    Select Gender
+                </div>
+
+                <div class="search-box">
+                    <input type="text" placeholder="Start Typing..." />
+                </div>
+            </div>
+            
+        </div>
+        <canvas id="lineChart" style="margin-top: 50px;" ></canvas>
+        <div style="display: none" id="jsonData" data-json="{{json_data}}"></div>
+        <form method="post" id="form" action="{%url 'ProgramTrends'%}" style="display: none;">
+            {%csrf_token%}
+            <input type="text" id="programName" name="program">
+            <input type="text" id="seat" name="seat">
+            <input type="text" id="genderType" name="gender">
+        </form>
+
+        <script src="{%static 'dropdown.js'%}"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            const selectedElement = document.querySelector("#program");
+            const selectedElement2 = document.querySelector("#seattype");
+            const selectedElement3 = document.querySelector("#gender")
+
+            let program = '';
+            let seat = '';
+            let gender = ''
+
+            // Create a new instance of the MutationObserver
+            const observer = new MutationObserver((mutationsList, observer) => {
+                // Run your desired function here
+                handleSelectedValueChange();
+            });
+
+            // Configure and start observing the target element for changes in the 'childList' and 'characterData' properties
+            observer.observe(selectedElement, { childList: true, characterData: true });
+
+            // Define your function to be executed whenever the selectedValue changes
+            function handleSelectedValueChange() {
+                program = selectedElement.innerHTML;
+                checkValues();
+            }
+
+            // Create a new instance of the MutationObserver
+            const observer2 = new MutationObserver((mutationsList, observer) => {
+                // Run your desired function here
+                handleSelectedValueChange2();
+            });
+
+            // Configure and start observing the target element for changes in the 'childList' and 'characterData' properties
+            observer2.observe(selectedElement2, { childList: true, characterData: true });
+
+            // Define your function to be executed whenever the selectedValue changes
+            function handleSelectedValueChange2() {
+                seat = selectedElement2.innerHTML;
+                checkValues();
+            }
+
+
+            // Create a new instance of the MutationObserver
+            const observer3 = new MutationObserver((mutationsList, observer) => {
+                // Run your desired function here
+                handleSelectedValueChange3();
+            });
+
+            // Configure and start observing the target element for changes in the 'childList' and 'characterData' properties
+            observer3.observe(selectedElement3, { childList: true, characterData: true });
+
+            // Define your function to be executed whenever the selectedValue changes
+            function handleSelectedValueChange3() {
+                gender = selectedElement3.innerHTML;
+                checkValues();
+            }
+
+            function checkValues() {
+                if (program !== '' && seat !== '' && gender !== '') {
+                    document.querySelector("#programName").value = program
+                    document.querySelector("#seat").value = seat
+                    document.querySelector("#genderType").value = gender
+                    // console.log(program)
+                    // console.log(seat)
+
+                    document.querySelector('#form').submit()
+                }
+            }
+
+            function loadJson(selector) {
+                return JSON.parse(document.querySelector(selector).getAttribute('data-json'));
+            }
+            var jsonData = loadJson('#jsonData');
+            console.log(jsonData)
+            var labels = jsonData[0].Year;
+            var datasets = jsonData.map(function (data) {
+                return {
+                    label: data.Institute,
+                    data: data.Rank,
+                    fill: false,
+                    borderColor: getRandomColor() // You can define a function to generate random colors
+                };
+            });
+
+            // Create the line chart
+            var ctx = document.getElementById('lineChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    title: {
+                        display: true,
+                        text: 'Program Trends'
+                    }
+                }
+            });
+
+            // Function to generate random colors
+            function getRandomColor() {
+                var letters = '0123456789ABCDEF';
+                var color = '#';
+                for (var i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            }
+        </script>
+</body>
+
+</html>

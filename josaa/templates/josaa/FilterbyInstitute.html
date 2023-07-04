@@ -1,0 +1,190 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filter by Institute</title>
+    <link rel="stylesheet" href="{%static 'styles.css'%}">
+</head>
+<body>
+    <div class="header">
+        <img class="logo" src="{%static 'logo.png'%}">
+        <p class="header-text">JoSAA Data Analysis Portal</p>
+         <nav>
+             <ul class="nav_links">
+              <li><a href="{%url 'FilterbyInstitute'%}">Filter By Institute</a></li>
+              <li><a href="{%url 'FilterbyProgram'%}">Filter By Program</a></li>
+              <li><a href="{%url 'InstituteTrends'%}">Institute Trends</a></li>
+              <li><a href="{%url 'ProgramTrends'%}">Program Trends</a></li>
+              <li><a href="{%url 'RoundTrends'%}">Round Trends</a></li>
+             </ul>
+         </nav>
+     </div>
+     <form method="post" id="form" action="{%url 'FilterbyInstitute'%}" style="display: none;">
+      {%csrf_token%}
+      <input type="text" id="college" name="college" >
+      <input type="text" id="seat" name="seat">
+     </form>  
+<div class="container">
+    <h2>Filter by Institute</h2>
+    <p class="container-text">Filter by Institute allows you to filter the cut-off data with the selected institutes and further narrow down with your choice of programs.</p>
+    <div class="main-content">
+        
+        <h3>Institute Type</h3>  
+        <div class="select-box">
+          <div class="options-container">
+            <div class="option">
+              <input
+                type="radio"
+                class="radio"
+                id="IITs"
+                name="IITs"
+                value="IITs"
+              />
+              <label for="IITs">IITs</label>
+            </div>
+            
+            <div class="option">
+                <input type="radio" class="radio" id="NITs" name="NITS" />
+                <label for="NITs">NITs</label>
+              </div>
+
+            <div class="option">
+              <input type="radio" class="radio" id="IIITs" name="IIITS" />
+              <label for="IIITs">IIITs</label>
+            </div>
+  
+            <div class="option">
+              <input type="radio" class="radio" id="GFTIs" name="GFTIs" />
+              <label for="GFTIs">GFTIs</label>
+            </div>
+          </div>
+  
+          <div class="selected" id="InstiType">
+            Select Institute Type
+          </div>
+          <div class="search-box">
+            <input type="text" placeholder="Start Typing..." />
+          </div>
+        </div>
+
+        <h3>Institute Name</h3>
+      <div class="select-box">
+        <div class="options-container" id="institute">
+          {%for institute in institutes%}
+          <div class="option"  >
+            <input
+              value="{{institute}}"
+              type="radio"
+              class="radio"
+              id="{{institute}}"
+              name="{{institute}}"
+            />
+            <label for="{{institute}}">{{institute}}</label>
+          </div>
+          {%endfor%}
+        </div>
+
+        <div class="selected" id="instiname">
+          Select Institute
+        </div>
+
+        <div class="search-box">
+          <input type="text" placeholder="Start Typing..." />
+        </div>
+      </div>
+ 
+  
+      <h3>Seat Type</h3>
+      <div class="select-box">
+        <div class="options-container">
+          <div class="option">
+            <input
+              type="radio"
+              class="radio"
+              id="OPEN"
+              name="category"
+            />
+            <label for="OPEN">OPEN</label>
+          </div>
+
+          <div class="option">
+            <input type="radio" class="radio" id="OBC NCL" name="category" value="OBC NCL" />
+            <label for="OBC NCL">OBC NCL</label>
+          </div>
+
+          <div class="option">
+            <input type="radio" class="radio" id="SC" name="category" value="SC" />
+            <label for="SC">SC</label>
+          </div>
+
+          <div class="option">
+            <input type="radio" class="radio" id="ST" name="category" value="ST" />
+            <label for="ST">ST</label>
+          </div>
+        </div>
+
+        <div class="selected" id="seattype">
+          Select Seat Type
+        </div>
+
+        <div class="search-box">
+          <input type="text" placeholder="Start Typing..." />
+        </div>
+      </div>
+    </div>
+    </div>
+    <div style="margin-top: 50px;">{{qs|safe}}</div>
+<script src="{%static 'dropdown.js'%}"></script>
+<script>
+
+const selectedElement = document.querySelector("#instiname");
+const selectedElement2 = document.querySelector("#seattype");
+
+let college = '';
+let seat = '';
+
+// Create a new instance of the MutationObserver
+const observer = new MutationObserver((mutationsList, observer) => {
+  // Run your desired function here
+  handleSelectedValueChange();
+});
+
+// Configure and start observing the target element for changes in the 'childList' and 'characterData' properties
+observer.observe(selectedElement, { childList: true, characterData: true });
+
+// Define your function to be executed whenever the selectedValue changes
+function handleSelectedValueChange() {
+  college = selectedElement.innerHTML;
+  checkValues();
+}
+
+// Create a new instance of the MutationObserver
+const observer2 = new MutationObserver((mutationsList, observer) => {
+  // Run your desired function here
+  handleSelectedValueChange2();
+});
+
+// Configure and start observing the target element for changes in the 'childList' and 'characterData' properties
+observer2.observe(selectedElement2, { childList: true, characterData: true });
+
+// Define your function to be executed whenever the selectedValue changes
+function handleSelectedValueChange2() {
+  seat = selectedElement2.innerHTML;
+  checkValues();
+}
+
+function checkValues() {
+  if (college !== '' && seat !== '') {
+    document.querySelector("#college").value=college
+    document.querySelector("#seat").value=seat
+    document.querySelector('#form').submit()
+  }
+}
+
+
+
+</script>
+</body>
+</html>
